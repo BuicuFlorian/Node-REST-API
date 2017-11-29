@@ -1,62 +1,64 @@
 'use strict';
 
-var mongoose = require('mongoose');
-var Book = require('../models/book');
+const Book = require('../models/book');
 
-exports.index = function(req, res) {
-    Book.find({}, function(err, books) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.json(books);
-        }
-    });
-};
+/**
+ * Controller for books.
+ */
+class BooksController {
+    /**
+     * Class constructor.
+     */
+    constructor() {}
 
-exports.store = function(req, res) {
-    var book = new Book(req.body);
+    /**
+     * Get all books.
+     */
+    index() {
+        return Book.find({}).sort({ author: 1 }).lean().exec();
+    }
 
-    book.save(function(err, book) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.json({
-                message: 'Book successfully saved.',
-                book: book
-            });
-        }
-    });
-};
+    /**
+     * Create a new book in the database.
+     * 
+     * @param {Object} book 
+     */
+    store(book) {
+        const newBook = new Book(book);
 
-exports.show = function(req, res) {
-    Book.findById(req.params.id, function(err, book) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.json(book);
-        }
-    });
-};
+        return newBook.save();
+    }
 
-exports.update = function(req, res) {
-    Book.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true }, function(err, book) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.json({
-                message: 'Book successfully updated.',
-                book: book
-            });
-        }
-    });
-};
+    /**
+     * Find and get one book by its id.
+     * 
+     * @param {String} id 
+     */
+    show(id) {
+        return Book.findOne({ _id: id }).lean().exec();
+    }
 
-exports.destroy = function(req, res) {
-    Book.findOneAndRemove({ _id: req.params.id }, function(err, book) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.json({ message: 'Book successfully deleted.' });
-        }
-    });
-};
+    /**
+     * Update the given book.
+     * 
+     * @param {String} id 
+     * @param {Object} book 
+     */
+    update(id, book) {
+        return Book.findOneAndUpdate({ _id: id }, book, { new: true }).exec();
+    }
+
+    /**
+     * Remove the given book from the database.
+     * 
+     * @param {String} id 
+     */
+    destroy(id) {
+        return Book.findByIdAndRemove({ _id: id }).exec();
+    }
+}
+
+/**
+ * Exporting a new instance of the books controller.
+ */
+module.exports = new BooksController();

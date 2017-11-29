@@ -1,52 +1,52 @@
 'use strict';
 
-var express = require('express');
-var mongoose = require('mongoose');
-var bodyParser = require('body-parser');
-var morgan = require('morgan');
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const morgan = require('morgan');
 
 require('dotenv').config();
 
-var dbUrl = process.env.DATABASE_URL;
+const dbUrl = process.env.DATABASE_URL;
 
 // If the connection is successfull.
-mongoose.connection.on('connected', function() {
-    console.log('Connected to ' + dbUrl + '.');
+mongoose.connection.on('connected', () => {
+    console.log(`Connected to ${dbUrl}.`);
 
-    var app = express();
+    const app = express();
 
     app.use(bodyParser.json())
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(morgan('dev'));
 
-    var booksRoutes = require('./api/routes/books.routes');
-    var middleware = require('./api/middlewares/url-not-found');
+    const booksRoutes = require('./api/routes/books.routes');
+    const middleware = require('./api/middlewares/url-not-found');
 
     app.use('/api', booksRoutes);
     app.use(middleware.urlNotFound);
 
-    var port = process.env.PORT || 8000;
-    var ip = process.env.IP || 'localhost';
+    const port = process.env.PORT || 8000;
+    const ip = process.env.IP || 'localhost';
 
-    app.listen(port, ip, function() {
-        console.log('Magic happens at ' + ip + ':' + port);
+    app.listen(port, ip, () => {
+        console.log(`Magic happens at ${ip}:${port}`);
     });
 });
 
 // If the connection throws an error.
-mongoose.connection.on('error', function(err) {
-    console.error('Failed to connect to ' + dbUrl + ' on startup.', err);
+mongoose.connection.on('error', (err) => {
+    console.error(`Failed to connect to ${dbUrl} on startup.`, err);
 });
 
 // When the connection is disconnected.
-mongoose.connection.on('disconnected', function() {
-    console.log('Mongoose default connection to ' + dbUrl + ' is disconnected.');
+mongoose.connection.on('disconnected', () => {
+    console.log(`Mongoose default connection to ${dbUrl} is disconnected.`);
 });
 
 // If the Node process ends, close the Mongoose connection.
-mongoose.connection.on('SIGINT', function() {
-    mongoose.connection.close(function() {
-        console.log('Mongoose default connection to ' + dbUrl + ' is disconnected due to app termination.');
+mongoose.connection.on('SIGINT', () => {
+    mongoose.connection.close(() => {
+        console.log(`Mongoose default connection to ${dbUrl} is disconnected due to app termination.`);
         process.exit(0);
     });
 });
@@ -54,7 +54,7 @@ mongoose.connection.on('SIGINT', function() {
 try {
     mongoose.Promise = global.Promise;
     mongoose.connect(dbUrl);
-    console.log('Trying to connect to ' + dbUrl + '.');
+    console.log(`Trying to connect to ${dbUrl}.`);
 } catch (err) {
-    console.log('Server initialization failed ' + err.message);
+    console.log(`Server initialization failed ${err.message}`);
 }
