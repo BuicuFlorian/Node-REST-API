@@ -11,5 +11,6 @@
 - Install dependencies: `npm install`
 - Copy the .env.example to your own file: `cp .env.example .env`
 - Set the `DATABASE_URL` in `.env`
+- Compile files: `npm run postinstall`
 - Start the server: `npm start` or, if you have nodemon installed: `npm run dev`
 - Test using [POSTMAN](https://www.getpostman.com/)  at `localhost:8080/api/books/`

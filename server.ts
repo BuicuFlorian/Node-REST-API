@@ -1,11 +1,11 @@
-'use strict';
+import * as bodyParser from 'body-parser';
+import * as dotenv from 'dotenv';
+import * as express from 'express';
+import * as mongoose from 'mongoose';
+import * as morgan from 'morgan';
+import booksRoutes from './api/routes/books.routes';
 
-const express = require('express');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const morgan = require('morgan');
-
-require('dotenv').config();
+dotenv.config();
 
 const dbUrl = process.env.DATABASE_URL;
 
@@ -19,17 +19,12 @@ mongoose.connection.on('connected', () => {
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(morgan('dev'));
 
-    const booksRoutes = require('./api/routes/books.routes');
-    const middleware = require('./api/middlewares/url-not-found');
-
     app.use('/api', booksRoutes);
-    app.use(middleware.urlNotFound);
 
     const port = process.env.PORT || 8000;
-    const ip = process.env.IP || 'localhost';
 
-    app.listen(port, ip, () => {
-        console.log(`Magic happens at ${ip}:${port}`);
+    app.listen(port, () => {
+        console.log(`Magic happens at http://localhost:${port}`);
     });
 });
 
@@ -51,12 +46,10 @@ mongoose.connection.on('SIGINT', () => {
     });
 });
 
-(async() => {
-    try {
-        mongoose.Promise = global.Promise;
-        await mongoose.connect(dbUrl);
-        console.log(`Trying to connect to ${dbUrl}.`);
-    } catch (err) {
-        console.log(`Server initialization failed ${err.message}`);
-    }
-})();
+try {
+    (mongoose as any).Promise = global.Promise;
+    mongoose.connect(dbUrl);
+    console.log(`Trying to connect to ${dbUrl}.`);
+} catch (err) {
+    console.log(`Server initialization failed ${err.message}`);
+}
