@@ -1,4 +1,4 @@
-'use strict';
+'use stric';
 
 const Book = require('../models/book');
 
@@ -14,8 +14,10 @@ class BooksController {
     /**
      * Get all books.
      */
-    index() {
-        return Book.find({}).sort({ author: 1 }).lean().exec();
+    async index() {
+        const books = await Book.find({}).sort({ author: 1 }).lean().exec();
+
+        return books;
     }
 
     /**
@@ -23,10 +25,11 @@ class BooksController {
      * 
      * @param {Object} book 
      */
-    store(book) {
+    async store(book) {
         const newBook = new Book(book);
+        const theBook = await newBook.save();
 
-        return newBook.save();
+        return theBook;
     }
 
     /**
@@ -34,8 +37,14 @@ class BooksController {
      * 
      * @param {String} id 
      */
-    show(id) {
-        return Book.findOne({ _id: id }).lean().exec();
+    async show(id) {
+        const book = await Book.findOne({ _id: id }).lean().exec();
+
+        if (!book) {
+            throw new Error('Books not found!');
+        }
+
+        return book;
     }
 
     /**
@@ -44,8 +53,10 @@ class BooksController {
      * @param {String} id 
      * @param {Object} book 
      */
-    update(id, book) {
-        return Book.findOneAndUpdate({ _id: id }, book, { new: true }).exec();
+    async update(id, book) {
+        const updatedBook = await Book.findOneAndUpdate({ _id: id }, book, { new: true }).exec();
+        
+        return updatedBook;
     }
 
     /**
@@ -53,8 +64,8 @@ class BooksController {
      * 
      * @param {String} id 
      */
-    destroy(id) {
-        return Book.findByIdAndRemove({ _id: id }).exec();
+    async destroy(id) {
+        await Book.findByIdAndRemove({ _id: id }).exec();
     }
 }
 

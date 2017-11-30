@@ -15,7 +15,7 @@ mongoose.connection.on('connected', () => {
 
     const app = express();
 
-    app.use(bodyParser.json())
+    app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(morgan('dev'));
 
@@ -51,10 +51,12 @@ mongoose.connection.on('SIGINT', () => {
     });
 });
 
-try {
-    mongoose.Promise = global.Promise;
-    mongoose.connect(dbUrl);
-    console.log(`Trying to connect to ${dbUrl}.`);
-} catch (err) {
-    console.log(`Server initialization failed ${err.message}`);
-}
+(async() => {
+    try {
+        mongoose.Promise = global.Promise;
+        await mongoose.connect(dbUrl);
+        console.log(`Trying to connect to ${dbUrl}.`);
+    } catch (err) {
+        console.log(`Server initialization failed ${err.message}`);
+    }
+})();

@@ -7,20 +7,20 @@ const router = express.Router();
 /**
  * A route to retrieve all books from the database.
  */
-router.get('/books', (req, res) => {
-    booksCtrl.index()
-        .then(book => {
-            res.json(book);
-        })
-        .catch(err => {
-            res.status(500).end();
-        });
+router.get('/books', async(req, res) => {
+    try {
+        const books = await booksCtrl.index();
+        
+        res.json(books);
+    } catch (err) {
+        return res.status(500).end();
+    }
 });
 
 /**
  *  A route to add a new book document to the database.
  */
-router.post('/books', (req, res) => {
+router.post('/books', async(req, res) => {
     const newBook = {
         title: req.body.title,
         author: req.body.author,
@@ -28,41 +28,37 @@ router.post('/books', (req, res) => {
         price: req.body.price
     };
 
-    booksCtrl.store(newBook)
-        .then(book => {
-            res.json({
-                success: 'Book successfully saved.',
-                book
-            });
-        })
-        .catch(err => {
-            res.status(500).end();
+    try {
+        const book = await booksCtrl.store(newBook);
+
+        res.json({
+            success: 'Book successfully saved.',
+            book
         });
+    } catch (err) {
+        return res.status(500).end();
+    }
 });
 
 /**
  * A route to retrieve one book from the database, using its id.
  */
-router.get('/books/:id', (req, res) => {
+router.get('/books/:id', async(req, res) => {
     const bookId = req.params.id;
 
-    booksCtrl.show(bookId)
-        .then(book => {
-            if (!book) {
-                res.status(404).json({ error: 'Book not found.' });
-            } else {
-                res.json(book);
-            }
-        })
-        .catch(err => {
-            res.status(500).end();
-        });
+    try {
+        const book = await booksCtrl.show(bookId);
+
+        res.json({ book });
+    } catch (err) {
+        return res.status(500).end();
+    }
 });
 
 /**
  * A route to update an existing book document from the database.
  */
-router.put('/books/:id', (req, res) => {
+router.put('/books/:id', async(req, res) => {
     const bookId = req.params.id;
     const updatedBook = {
         title: req.body.title,
@@ -71,31 +67,32 @@ router.put('/books/:id', (req, res) => {
         price: req.body.price
     };
 
-    booksCtrl.update(bookId, updatedBook)
-        .then(book => {
-            res.json({
-                success: 'Book successfully updated.',
-                book
-            });
-        })
-        .catch(err => {
-            res.status(500).end();
+    try {
+        const book = await booksCtrl.update(bookId, updatedBook);
+
+        res.json({
+            success: 'Book successfully updated.',
+            book
         });
+
+    } catch (err) {
+        return res.status(500).end();
+    }
 });
 
 /**
  * A route to remove an existing book document from the database.
  */
-router.delete('/books/:id', (req, res) => {
+router.delete('/books/:id', async(req, res) => {
     const bookId = req.params.id;
 
-    booksCtrl.destroy(bookId)
-        .then(() => {
-            res.json({ success: 'Book successfully deleted.' });
-        })
-        .catch(err => {
-            res.status(500).end();
-        });
+    try {
+        await booksCtrl.destroy(bookId);
+
+        res.json({ success: 'Book successfully deleted.' });
+    } catch (err) {
+        return res.status(500).end();
+    }
 });
 
 /**
